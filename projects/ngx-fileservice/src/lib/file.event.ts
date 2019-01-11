@@ -1,0 +1,49 @@
+
+
+import {ManagedFile} from "./managed.file";
+
+export enum FileEventType {
+    FILE_LOAD,
+    FILE_VALIDATION_ERROR,
+    FILE_UPLOAD_START,
+    FILE_UPLOAD_PROGRESS,
+    FILE_UPLOAD_END,
+    FILE_UPLOAD_SUCCESS,
+    FILE_DELETE_START,
+    FILE_DELETE_END,
+    FILE_DELETE_SUCCESS,
+}
+
+export class FileEvent {
+
+    private _type: FileEventType;
+
+    private _file: ManagedFile;
+
+    private _message: string;
+
+    private _messageParams: any;
+
+    constructor(type: FileEventType, file: ManagedFile, message?: string, messageParams?: any) {
+        this._type = type;
+        this._file = file;
+        this._message = message;
+        this._messageParams = messageParams;
+    }
+
+    get type(): FileEventType {
+        return this._type;
+    }
+
+    get file(): ManagedFile {
+        return this._file;
+    }
+
+    get message(): string {
+        return this._message;
+    }
+
+    get messageParams(): any {
+        return this._messageParams;
+    }
+}
