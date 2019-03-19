@@ -4,7 +4,7 @@
  * Date: 3/5/16
  */
 
-import {Md5} from 'ts-md5/dist/md5';
+import { Md5 } from 'ts-md5/dist/md5';
 
 export enum ManagedFileStatus {
     LOADED,
@@ -35,7 +35,6 @@ export class ManagedFile {
     private _status: ManagedFileStatus = ManagedFileStatus.UPLOADED;
 
     constructor(uri: string, name: string, mimeType?: string) {
-
         this._mimeType = mimeType;
         this._originalName = name;
         this._uri = uri;
@@ -85,6 +84,7 @@ export class ManagedFile {
         } else {
             this._name = new Md5().appendStr(new Date().getMilliseconds().toString()).end().toString().substr(0, charsNum);
         }
+
         return this._name;
     }
 
@@ -92,6 +92,7 @@ export class ManagedFile {
         if (!this._name) {
             this.regenerateName();
         }
+
         return this._name;
     }
 
@@ -183,6 +184,7 @@ export class ManagedFile {
             '(/{0,1}[^?#]*)'
         ].join(''));
         let match = this._uri.match(reURLInformation);
+
         return match[5];
     }
 
@@ -209,7 +211,8 @@ export class ManagedFile {
             }
             byteArrays[sliceIndex] = new Uint8Array(bytes);
         }
-        return new Blob(byteArrays, {type: contentType});
+
+        return new Blob(byteArrays, { type: contentType });
 
     }
 
@@ -229,6 +232,7 @@ export class ManagedFile {
         let managedFile = new ManagedFile(uri, name, mimeType);
         managedFile.status = ManagedFileStatus.LOADED;
         managedFile.uploadPercentage = 0;
+
         return managedFile;
     }
 

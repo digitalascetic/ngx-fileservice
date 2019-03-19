@@ -2,8 +2,9 @@
  * Created by martino on 01/04/17.
  */
 
-import {Md5} from "ts-md5/dist/md5";
-import {ManagedFile, ManagedFileStatus} from "./managed.file";
+import { Md5 } from 'ts-md5/dist/md5';
+import { ManagedFile, ManagedFileStatus } from './managed.file';
+
 export enum MultiFileEventType {
     LOAD,
     VALIDATION_ERROR,
@@ -16,13 +17,13 @@ export enum MultiFileEventType {
 
 export class MultiFileEvent {
 
-    private _id: string;
+    private readonly _id: string;
 
-    private _type: MultiFileEventType;
+    private readonly _type: MultiFileEventType;
 
-    private _files: ManagedFile[];
+    private readonly _files: ManagedFile[];
 
-    private _message: string;
+    private readonly _message: string;
 
     constructor(type: MultiFileEventType, files: ManagedFile[], message?: string, id?: string) {
         this._type = type;

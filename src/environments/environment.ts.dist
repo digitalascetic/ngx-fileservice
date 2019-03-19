@@ -3,7 +3,15 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  dropbox_client_id: '<YourDropboxClientId>',
+  dropbox_access_token: '<YourDropboxAccessToken>',
+  dropbox_base_dir: '<YourDropboxBaseDir>',
+  s3_bucket_name: '<YourS3BucketName>',
+  s3_access_key_id: '<YourS3AccessKeyId>',
+  s3_secret_access_key: '<YourS3SecretAccessKey>',
+  s3_region: '<YourS3Region>',
+  s3_base_dir: '<YourS3BaseDir>',
 };
 
 /*

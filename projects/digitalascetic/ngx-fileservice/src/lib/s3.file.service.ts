@@ -1,15 +1,18 @@
-import {FileService} from "./file.service";
-import {ManagedFile, ManagedFileStatus} from "./managed.file";
-import {Observable, Subject} from "rxjs";
-import {FileEvent, FileEventType} from "./file.event";
-import {Injectable} from "@angular/core";
-import * as AWS from "aws-sdk";
-import {ManagedUpload} from "aws-sdk/clients/s3";
+import { FileService } from './file.service';
+import { ManagedFile, ManagedFileStatus } from './managed.file';
+import { Observable, Subject } from 'rxjs';
+import { FileEvent, FileEventType } from './file.event';
+import * as AWS from 'aws-sdk';
+import { ManagedUpload } from 'aws-sdk/clients/s3';
 
-@Injectable()
 export class S3FileService implements FileService {
 
-    constructor(private _bucketName: string, private _accessKeyId: string, private _secretAccessKey: string, private _region: string) {
+    constructor(
+        private _bucketName: string,
+        private _accessKeyId: string,
+        private _secretAccessKey: string,
+        private _region: string
+    ) {
     }
 
     deleteFile(file: ManagedFile, options: any): Observable<FileEvent> {
@@ -24,7 +27,7 @@ export class S3FileService implements FileService {
 
         let retSubject: Subject<FileEvent> = new Subject<FileEvent>();
 
-        this.bucket.deleteObject(params, function (err, data) {
+        this.bucket.deleteObject(params, function(err, data) {
             retSubject.next(new FileEvent(FileEventType.FILE_DELETE_END, file));
             if (err) {
                 file.status = ManagedFileStatus.UPLOADED;
@@ -58,7 +61,7 @@ export class S3FileService implements FileService {
 
         if (file.originalName) {
             //We need to encode UFT8 to avoid error with special chars
-            params.Metadata = {originalName: encodeURIComponent(file.originalName)};
+            params.Metadata = { originalName: encodeURIComponent(file.originalName) };
         }
 
         // Override default values
@@ -106,7 +109,7 @@ export class S3FileService implements FileService {
         AWS.config.update(config);
 
         AWS.config.apiVersions = {
-            s3: '2006-03-01',
+            s3: '2006-03-01'
         };
 
         return new AWS.S3();
