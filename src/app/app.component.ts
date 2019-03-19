@@ -5,7 +5,6 @@ import { ManagedFile, ManagedFileStatus } from '../../projects/digitalascetic/ng
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { FileEvent, FileEventType } from '../../projects/digitalascetic/ngx-fileservice/src/lib/file.event';
 import { Subject } from 'rxjs';
-import { ManagedFileValidator } from '../../projects/digitalascetic/ngx-fileservice/src/lib/managed-file-validator';
 import { MultiFileEvent, MultiFileEventType } from '../../projects/digitalascetic/ngx-fileservice/src/lib/multi.file.event';
 import { take } from 'rxjs/operators';
 import { environment } from '../environments/environment';
@@ -23,7 +22,6 @@ export class AppComponent implements OnInit {
     fileUploaded: number = 0;
     totalFiles: number = 0;
     publicFiles: boolean = false;
-    fileValidators: ManagedFileValidator[] = [];
 
     fileEvents: Subject<FileEvent>;
 
@@ -132,7 +130,7 @@ export class AppComponent implements OnInit {
     }
 
     uploadFileS3() {
-        this.uploadFiles(this._files, this.fileValidators, this.publicFiles, environment.s3_base_dir);
+        this.uploadFiles(this._files, this.publicFiles, environment.s3_base_dir);
     }
 
     updateFiles(event: any) {
@@ -157,7 +155,7 @@ export class AppComponent implements OnInit {
         */
     }
 
-    uploadFiles(files: File[], fileValidators: ManagedFileValidator[] = null, publicFile: boolean = false, uploadSubDir?: string) {
+    uploadFiles(files: File[], publicFile: boolean = false, uploadSubDir?: string) {
         const loaderObservable: Subject<ManagedFile> = new Subject<ManagedFile>();
 
         loaderObservable
@@ -165,21 +163,7 @@ export class AppComponent implements OnInit {
                 take(1)
             )
             .subscribe((file: ManagedFile) => {
-                if (fileValidators && fileValidators.length > 0) {
-                    let passedValidations: boolean = true;
-
-                    fileValidators.forEach(validator => {
-                        if (!validator.validate(file, this.fileEvents)) {
-                            passedValidations = false;
-                        }
-                    });
-
-                    if (passedValidations) {
-                        this._uploadFile(file, uploadSubDir);
-                    }
-                } else {
-                    this._uploadFile(file, uploadSubDir);
-                }
+                this._uploadFile(file, uploadSubDir);
             }, () => {
                 this.multiFileEvents.next(new MultiFileEvent(MultiFileEventType.LOAD, this._managedFiles));
             });
