@@ -1,4 +1,4 @@
-# FileServiceNgxApp
+# FileServiceNgxApp - Unstable
 
 Test application for the ngx-fileservice package.
 

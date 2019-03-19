@@ -9,20 +9,21 @@
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "importHelpers": true,
     "target": "es5",
     "typeRoots": [
       "node_modules/@types"
     ],
     "lib": [
-      "es2017",
+      "es2018",
       "dom"
     ],
     "paths": {
-      "ngx-fileuploader": [
-        "dist/ngx-fileservice"
+      "@digitalascetic/ngx-fileuploader": [
+        "dist/digitalascetic/ngx-fileservice"
       ],
-      "ngx-fileuploader/*": [
-        "dist/ngx-fileservice/*"
+      "@digitalascetic/ngx-fileuploader/*": [
+        "dist/digitalascetic/ngx-fileservice/*"
       ]
     }
   }

@@ -1,7 +1,7 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "../../out-tsc/lib",
+    "outDir": "../../../out-tsc/lib",
     "target": "es2015",
     "module": "es2015",
     "moduleResolution": "node",
@@ -11,11 +11,14 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "types": [],
+    "types": ["node"],
     "lib": [
       "dom",
-      "es2015"
-    ]
+      "es2018"
+    ],
+    "paths": {
+      "aws-sdk": ["node_modules/aws-sdk/dist/aws-sdk.js"]
+    }
   },
   "angularCompilerOptions": {
     "annotateForClosureCompiler": true,
