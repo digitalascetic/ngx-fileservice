@@ -1,9 +1,3 @@
-/**
- * Created by eduarddeza.
- * Project: bluplat-client
- * Date: 3/5/16
- */
-
 import { Md5 } from 'ts-md5/dist/md5';
 
 export enum ManagedFileStatus {

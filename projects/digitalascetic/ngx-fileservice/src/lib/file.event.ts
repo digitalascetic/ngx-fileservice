@@ -1,6 +1,4 @@
-
-
-import {ManagedFile} from "./managed.file";
+import { ManagedFile } from './managed.file';
 
 export enum FileEventType {
     FILE_LOAD,
@@ -16,13 +14,13 @@ export enum FileEventType {
 
 export class FileEvent {
 
-    private _type: FileEventType;
+    private readonly _type: FileEventType;
 
-    private _file: ManagedFile;
+    private readonly _file: ManagedFile;
 
-    private _message: string;
+    private readonly _message: string;
 
-    private _messageParams: any;
+    private readonly _messageParams: any;
 
     constructor(type: FileEventType, file: ManagedFile, message?: string, messageParams?: any) {
         this._type = type;

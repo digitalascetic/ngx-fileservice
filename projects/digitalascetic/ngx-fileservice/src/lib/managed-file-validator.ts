@@ -1,10 +1,6 @@
-import {Subject} from 'rxjs';
+import { Subject } from 'rxjs';
 import { ManagedFile } from './managed.file';
 import { FileEvent } from './file.event';
-
-/**
- * Created by martino on 12/07/17.
- */
 
 export enum FileValidators {
     SIZE_VALIDATOR,
