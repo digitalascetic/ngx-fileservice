@@ -1,9 +1,10 @@
-import { FileService } from './file.service';
-import { ManagedFile, ManagedFileStatus } from './managed.file';
 import { Observable, Subject } from 'rxjs';
-import { FileEvent, FileEventType } from './file.event';
 import * as AWS from 'aws-sdk';
 import { ManagedUpload } from 'aws-sdk/clients/s3';
+
+import { FileService } from './file.service';
+import { ManagedFile, ManagedFileStatus } from './managed-file';
+import { FileEvent, FileEventType } from './file-event';
 
 export class S3FileService implements FileService {
 
@@ -16,7 +17,6 @@ export class S3FileService implements FileService {
     }
 
     deleteFile(file: ManagedFile, options: any): Observable<FileEvent> {
-
         let params = {
             Bucket: this._bucketName,
             Key: file.getPath().substr(1)
@@ -41,12 +41,9 @@ export class S3FileService implements FileService {
         retSubject.next(new FileEvent(FileEventType.FILE_DELETE_START, file));
 
         return retSubject;
-
-
     }
 
     uploadFile(file: ManagedFile, path: string, options: any): Observable<FileEvent> {
-
         let binaryContent = file.getBinaryContent();
 
         let params: any = {
@@ -94,7 +91,6 @@ export class S3FileService implements FileService {
     }
 
     private get bucket() {
-
         const config = new AWS.Config({
             credentials: new AWS.Credentials({
                 accessKeyId: this._accessKeyId,
@@ -113,8 +109,6 @@ export class S3FileService implements FileService {
         };
 
         return new AWS.S3();
-
     }
-
 
 }

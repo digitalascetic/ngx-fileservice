@@ -19,10 +19,10 @@
       "dom"
     ],
     "paths": {
-      "@digitalascetic/ngx-fileuploader": [
+      "@digitalascetic/ngx-fileservice": [
         "dist/digitalascetic/ngx-fileservice"
       ],
-      "@digitalascetic/ngx-fileuploader/*": [
+      "@digitalascetic/ngx-fileservice/*": [
         "dist/digitalascetic/ngx-fileservice/*"
       ]
     }

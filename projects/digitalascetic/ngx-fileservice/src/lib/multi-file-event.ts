@@ -1,5 +1,5 @@
 import { Md5 } from 'ts-md5/dist/md5';
-import { ManagedFile, ManagedFileStatus } from './managed.file';
+import { ManagedFile, ManagedFileStatus } from './managed-file';
 
 export enum MultiFileEventType {
     LOAD,
@@ -44,38 +44,36 @@ export class MultiFileEvent {
         return this._message;
     }
 
-    public getUploadingFile(): number {
+    getUploadingFile(): number {
         let count = 0;
-        this._files.forEach(
-            file => {
-                if (file.status === ManagedFileStatus.UPLOADING) {
-                    count++;
-                }
+        this._files.forEach((file: ManagedFile) => {
+            if (file.status === ManagedFileStatus.UPLOADING) {
+                count++;
             }
-        );
+        });
+
         return count;
     }
 
-    public getUploadedFile(): number {
+    getUploadedFile(): number {
         let count = 0;
-        this._files.forEach(
-            file => {
-                if (file.status === ManagedFileStatus.UPLOADED) {
-                    count++;
-                }
+        this._files.forEach((file: ManagedFile) => {
+            if (file.status === ManagedFileStatus.UPLOADED) {
+                count++;
             }
-        );
+        });
+
         return count;
     }
 
-    public getUploadProgress(): number {
+    getUploadProgress(): number {
         let total = this._files.length * 100;
         let progress = 0;
-        this._files.forEach(
-            file => {
-                progress = progress + file.uploadPercentage;
-            }
-        );
+        this._files.forEach((file: ManagedFile) => {
+            progress = progress + file.uploadPercentage;
+        });
+
         return Math.floor(progress / total);
     }
+
 }

@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import * as Dropbox from 'dropbox';
-import { S3FileService } from '../../projects/digitalascetic/ngx-fileservice/src/lib/s3.file.service';
-import { ManagedFile, ManagedFileStatus } from '../../projects/digitalascetic/ngx-fileservice/src/lib/managed.file';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { FileEvent, FileEventType } from '../../projects/digitalascetic/ngx-fileservice/src/lib/file.event';
 import { Subject } from 'rxjs';
-import { MultiFileEvent, MultiFileEventType } from '../../projects/digitalascetic/ngx-fileservice/src/lib/multi.file.event';
 import { take } from 'rxjs/operators';
+import * as Dropbox from 'dropbox';
+
 import { environment } from '../environments/environment';
+import { S3FileService } from '../../projects/digitalascetic/ngx-fileservice/src/lib/s3.file.service';
+import { FileEvent, FileEventType } from '../../projects/digitalascetic/ngx-fileservice/src/lib/file-event';
+import { ManagedFile, ManagedFileStatus } from '../../projects/digitalascetic/ngx-fileservice/src/lib/managed-file';
+import { MultiFileEvent, MultiFileEventType } from '../../projects/digitalascetic/ngx-fileservice/src/lib/multi-file-event';
 
 @Component({
     selector: 'app-root',
@@ -19,7 +20,8 @@ export class AppComponent implements OnInit {
 
     form: FormGroup;
 
-    fileUploaded: number = 0;
+    filesUploaded: number = 0;
+    uploadingFile: ManagedFile = null;
     totalFiles: number = 0;
     publicFiles: boolean = false;
 
@@ -105,17 +107,13 @@ export class AppComponent implements OnInit {
     initS3() {
         this.multiFileEvents.subscribe(
             multiFileEvent => {
-
                 switch (multiFileEvent.type) {
-
                     case MultiFileEventType.UPLOAD_START: {
-                        //this.fileUploading++;
                         break;
                     }
 
                     case MultiFileEventType.UPLOAD_END: {
-                        //this.fileUploading--;
-                        this.fileUploaded = multiFileEvent.getUploadedFile();
+                        this.filesUploaded++;
                         break;
                     }
 
@@ -123,7 +121,6 @@ export class AppComponent implements OnInit {
                         //this.totalProgressUpload = multiFileEvent.getUploadProgress();
                         break;
                     }
-
                 }
             }
         );

@@ -39,7 +39,7 @@ export class ManagedFile {
         this._status = ManagedFileStatus.UPLOADED;
     }
 
-    public getFileExtension(): string {
+    getFileExtension(): string {
         let ext: string = '';
         if (this._originalName) {
             ext = this._originalName.substr(this._originalName.lastIndexOf('.') + 1);
@@ -47,7 +47,7 @@ export class ManagedFile {
         return ext;
     }
 
-    public static bytesToSize(bytes: number): string {
+    static bytesToSize(bytes: number): string {
         const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
 
         if (bytes === 0) {
@@ -158,7 +158,7 @@ export class ManagedFile {
         this._status = value;
     }
 
-    public isUriEncoded(): boolean {
+    isUriEncoded(): boolean {
         return this._uri && this._uri.substr(0, 5) === 'data:';
     }
 
@@ -218,7 +218,7 @@ export class ManagedFile {
         return null;
     }
 
-    public static fromClientUpload(uploadedContent: string, name: string): ManagedFile {
+    static fromClientUpload(uploadedContent: string, name: string): ManagedFile {
         let uri = uploadedContent;
         let mimeStart = uploadedContent.indexOf(':');
         let mimeEnd = uploadedContent.indexOf(';');

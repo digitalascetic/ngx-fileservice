@@ -1,4 +1,4 @@
-import { ManagedFile } from './managed.file';
+import { ManagedFile } from './managed-file';
 
 export enum FileEventType {
     FILE_LOAD,
@@ -44,4 +44,5 @@ export class FileEvent {
     get messageParams(): any {
         return this._messageParams;
     }
+
 }

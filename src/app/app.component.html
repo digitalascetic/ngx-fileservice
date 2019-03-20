@@ -17,7 +17,8 @@
             <button type="submit">Submit</button>
         </form>
         <div class="text-left">
-            Uploaded files: {{fileUploaded}} of {{totalFiles}}
+            Uploading: {{ uploadingFile ? uploadingFile.name : '-' }}
+            Uploaded files: {{ filesUploaded }} of {{ totalFiles }}
         </div>
     </fieldset>
 </section>
