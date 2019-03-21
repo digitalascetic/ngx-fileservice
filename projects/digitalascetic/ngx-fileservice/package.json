@@ -1,6 +1,6 @@
 {
   "name": "@digitalascetic/ngx-fileservice",
-  "version": "1.0.2-dev",
+  "version": "1.0.4-dev",
   "description": "Pluggable Angular File Service.",
   "license": "MIT",
   "keywords": [
@@ -9,8 +9,8 @@
     "File Uploader"
   ],
   "peerDependencies": {
-    "@angular/common": "^7.2.0",
-    "@angular/core": "^7.2.0"
+    "@angular/common": ">=7.0.0 <8.0.0",
+    "@angular/core": ">=7.0.0 <8.0.0"
   },
   "repository": {
     "type": "git",
