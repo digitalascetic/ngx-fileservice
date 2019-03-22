@@ -44,9 +44,9 @@ export class S3FileService implements FileService {
     }
 
     uploadFile(file: ManagedFile, path: string, options: any): Observable<FileEvent> {
-        let binaryContent = file.getBinaryContent();
+        const binaryContent = file.getBinaryContent();
 
-        let params: any = {
+        const params: any = {
             Bucket: this._bucketName,
             Key: path,
             Body: binaryContent,
@@ -64,26 +64,26 @@ export class S3FileService implements FileService {
         // Override default values
         Object.assign(params, options);
 
-        let retSubject = new Subject<FileEvent>();
+        const retSubject = new Subject<FileEvent>();
 
-        let upload: ManagedUpload = this.bucket.upload(params);
+        const upload: ManagedUpload = this.bucket.upload(params);
 
         upload.on('httpUploadProgress', evt => {
             file.uploadPercentage = Math.floor(evt.loaded * 100 / evt.total);
             retSubject.next(new FileEvent(FileEventType.FILE_UPLOAD_PROGRESS, file));
         }).send((err, data) => {
-                retSubject.next(new FileEvent(FileEventType.FILE_UPLOAD_END, file));
-                if (err) {
-                    file.status = ManagedFileStatus.LOADED;
-                    retSubject.error(err);
-                } else {
-                    file.uri = data.Location;
-                    file.status = ManagedFileStatus.UPLOADED;
-                    retSubject.next(new FileEvent(FileEventType.FILE_UPLOAD_SUCCESS, file));
-                    retSubject.complete();
-                }
+            file.uploadPercentage = 100;
+            retSubject.next(new FileEvent(FileEventType.FILE_UPLOAD_END, file));
+            if (err) {
+                file.status = ManagedFileStatus.LOADED;
+                retSubject.error(err);
+            } else {
+                file.uri = data.Location;
+                file.status = ManagedFileStatus.UPLOADED;
+                retSubject.next(new FileEvent(FileEventType.FILE_UPLOAD_SUCCESS, file));
+                retSubject.complete();
             }
-        );
+        });
         file.status = ManagedFileStatus.UPLOADING;
         retSubject.next(new FileEvent(FileEventType.FILE_UPLOAD_START, file));
 

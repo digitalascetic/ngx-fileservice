@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Subject } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { take, takeUntil } from 'rxjs/operators';
 import * as Dropbox from 'dropbox';
 
 import { environment } from '../environments/environment';
@@ -14,9 +14,10 @@ import { MultiFileEvent, MultiFileEventType } from '../../projects/digitalasceti
     selector: 'app-root',
     templateUrl: './app.component.html'
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
 
     private _s3FileService: S3FileService;
+    private $destroy: Subject<void> = new Subject<void>();
 
     form: FormGroup;
 
@@ -30,7 +31,7 @@ export class AppComponent implements OnInit {
     multiFileEvents: Subject<MultiFileEvent>;
 
     private readonly _managedFiles: Array<ManagedFile>;
-    private _files: Array<File>;
+    private _files: Array<File> = [];
 
     constructor(
         private _fb: FormBuilder
@@ -48,6 +49,11 @@ export class AppComponent implements OnInit {
     ngOnInit(): void {
         this.initDropbox();
         this.initS3();
+    }
+
+    ngOnDestroy() {
+        this.$destroy.next();
+        this.$destroy.complete();
     }
 
 
@@ -105,7 +111,12 @@ export class AppComponent implements OnInit {
      */
 
     initS3() {
-        this.multiFileEvents.subscribe(
+        this.fileEvents.pipe(takeUntil(this.$destroy)).subscribe(
+            (fileEvent: FileEvent) => {
+                console.log(fileEvent.file.uploadPercentage);
+            }
+        );
+        this.multiFileEvents.pipe(takeUntil(this.$destroy)).subscribe(
             multiFileEvent => {
                 switch (multiFileEvent.type) {
                     case MultiFileEventType.UPLOAD_START: {
@@ -118,7 +129,6 @@ export class AppComponent implements OnInit {
                     }
 
                     case MultiFileEventType.UPLOAD_PROGRESS: {
-                        //this.totalProgressUpload = multiFileEvent.getUploadProgress();
                         break;
                     }
                 }
@@ -153,11 +163,12 @@ export class AppComponent implements OnInit {
     }
 
     uploadFiles(files: File[], publicFile: boolean = false, uploadSubDir?: string) {
-        const loaderObservable: Subject<ManagedFile> = new Subject<ManagedFile>();
+        const totalFiles: number = files.length;
 
+        const loaderObservable: Subject<ManagedFile> = new Subject<ManagedFile>();
         loaderObservable
             .pipe(
-                take(1)
+                take(totalFiles)
             )
             .subscribe((file: ManagedFile) => {
                 this._uploadFile(file, uploadSubDir);
@@ -165,9 +176,8 @@ export class AppComponent implements OnInit {
                 this.multiFileEvents.next(new MultiFileEvent(MultiFileEventType.LOAD, this._managedFiles));
             });
 
-        const totalfiles = files.length;
 
-        for (let i = 0; i < totalfiles; i++) {
+        for (let i = 0; i < totalFiles; i++) {
             const reader: FileReader = new FileReader();
             const file = files[i];
 
@@ -179,7 +189,7 @@ export class AppComponent implements OnInit {
 
                 // TODO maybe set also lastUpdatedDate
                 loaderObservable.next(managedFile);
-                if (i === totalfiles) {
+                if (i === totalFiles) {
                     loaderObservable.complete();
                 }
             }, false);
@@ -222,7 +232,7 @@ export class AppComponent implements OnInit {
         this._managedFiles.push(file);
         this._s3FileService.uploadFile(file, uploadSubDir + '/' + file.name, [])
             .pipe(
-                take(1)
+                takeUntil(this.$destroy)
             )
             .subscribe((fileEvent: FileEvent) => {
                 this.fileEvents.next(fileEvent);
