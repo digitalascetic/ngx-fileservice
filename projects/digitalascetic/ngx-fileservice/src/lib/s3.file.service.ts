@@ -8,6 +8,10 @@ import { FileEvent, FileEventType } from './file-event';
 
 export class S3FileService implements FileService {
 
+    private _currentUpload: ManagedUpload = null;
+    private _currentFile: ManagedFile = null;
+    private _cancelUpload: boolean = false;
+
     constructor(
         private _bucketName: string,
         private _accessKeyId: string,
@@ -17,15 +21,17 @@ export class S3FileService implements FileService {
     }
 
     deleteFile(file: ManagedFile, options: any): Observable<FileEvent> {
-        let params = {
+        const retSubject: Subject<FileEvent> = new Subject<FileEvent>();
+
+        file.status = ManagedFileStatus.DELETING;
+        retSubject.next(new FileEvent(FileEventType.FILE_DELETE_START, file));
+
+        const params = {
             Bucket: this._bucketName,
             Key: file.getPath().substr(1)
         };
-
         // Override default values
         Object.assign(params, options);
-
-        let retSubject: Subject<FileEvent> = new Subject<FileEvent>();
 
         this.bucket.deleteObject(params, function(err, data) {
             retSubject.next(new FileEvent(FileEventType.FILE_DELETE_END, file));
@@ -37,15 +43,18 @@ export class S3FileService implements FileService {
             }
             retSubject.complete();
         });
-        file.status = ManagedFileStatus.DELETING;
-        retSubject.next(new FileEvent(FileEventType.FILE_DELETE_START, file));
 
         return retSubject;
     }
 
     uploadFile(file: ManagedFile, path: string, options: any): Observable<FileEvent> {
-        const binaryContent = file.getBinaryContent();
+        const retSubject = new Subject<FileEvent>();
 
+        file.status = ManagedFileStatus.UPLOADING;
+
+        this._currentFile = file;
+
+        const binaryContent = file.getBinaryContent();
         const params: any = {
             Bucket: this._bucketName,
             Key: path,
@@ -60,34 +69,45 @@ export class S3FileService implements FileService {
             //We need to encode UFT8 to avoid error with special chars
             params.Metadata = { originalName: encodeURIComponent(file.originalName) };
         }
-
         // Override default values
         Object.assign(params, options);
 
-        const retSubject = new Subject<FileEvent>();
+        let start: boolean = true;
 
-        const upload: ManagedUpload = this.bucket.upload(params);
-
-        upload.on('httpUploadProgress', evt => {
+        this._currentUpload = this.bucket.upload(params);
+        this._currentUpload.on('httpUploadProgress', evt => {
+            if (start) {
+                retSubject.next(new FileEvent(FileEventType.FILE_UPLOAD_START, file));
+                start = false;
+            }
             file.uploadPercentage = Math.floor(evt.loaded * 100 / evt.total);
             retSubject.next(new FileEvent(FileEventType.FILE_UPLOAD_PROGRESS, file));
         }).send((err, data) => {
-            file.uploadPercentage = 100;
-            retSubject.next(new FileEvent(FileEventType.FILE_UPLOAD_END, file));
             if (err) {
                 file.status = ManagedFileStatus.LOADED;
-                retSubject.error(err);
+                if (this._cancelUpload) {
+                    retSubject.next(new FileEvent(FileEventType.FILE_UPLOAD_CANCELED, this._currentFile));
+                    this._cancelUpload = false;
+                }
+                else {
+                    retSubject.next(new FileEvent(FileEventType.FILE_UPLOAD_FAILED, file));
+                    retSubject.error(err);
+                }
             } else {
+                file.uploadPercentage = 100;
                 file.uri = data.Location;
                 file.status = ManagedFileStatus.UPLOADED;
                 retSubject.next(new FileEvent(FileEventType.FILE_UPLOAD_SUCCESS, file));
                 retSubject.complete();
             }
         });
-        file.status = ManagedFileStatus.UPLOADING;
-        retSubject.next(new FileEvent(FileEventType.FILE_UPLOAD_START, file));
 
         return retSubject;
+    }
+
+    cancelUpload() {
+        this._cancelUpload = true;
+        this._currentUpload.abort();
     }
 
     private get bucket() {

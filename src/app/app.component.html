@@ -5,7 +5,7 @@
         <ul id="files"></ul>
         <form [formGroup]="form" (ngSubmit)="uploadFileDropbox()">
             <input formControlName="file" type="file" id="file-upload" />
-            <button type="submit">Submit</button>
+            <button type="submit">Upload all</button>
         </form>
         <h2 id="results"></h2>
     </fieldset>
@@ -14,10 +14,11 @@
         <legend>S3</legend>
         <form [formGroup]="form" (ngSubmit)="uploadFileS3()">
             <input formControlName="file" type="file" multiple (change)="updateFiles($event)">
-            <button type="submit">Submit</button>
+            <button type="submit">Upload all</button>
+            <button type="button" (click)="cancelUploads()">Cancel all</button>
         </form>
         <div class="text-left">
-            Uploading: {{ uploadingFile ? uploadingFile.name : '-' }}
+            Uploading: {{ uploadingFile ? uploadingFile.name : '-' }} <button type="button" (click)="cancelUpload()" *ngIf="uploadingFile">Cancel</button><br>
             Uploaded files: {{ filesUploaded }} of {{ totalFiles }}
         </div>
     </fieldset>

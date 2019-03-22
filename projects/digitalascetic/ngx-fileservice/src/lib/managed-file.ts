@@ -2,8 +2,8 @@ import { Md5 } from 'ts-md5/dist/md5';
 
 export enum ManagedFileStatus {
     LOADED,
-    UPLOADED,
     UPLOADING,
+    UPLOADED,
     DELETING,
     DELETED
 }
@@ -24,9 +24,9 @@ export class ManagedFile {
 
     private _storageClass: string;
 
-    private _uploadPercentage: number = 100;
+    private _uploadPercentage: number = 0;
 
-    private _status: ManagedFileStatus = ManagedFileStatus.UPLOADED;
+    private _status: ManagedFileStatus = null;
 
     constructor(uri: string, name: string, mimeType?: string) {
         this._mimeType = mimeType;
@@ -36,7 +36,6 @@ export class ManagedFile {
         this._storageClass = null;
         this._size = null;
         this.regenerateName();
-        this._status = ManagedFileStatus.UPLOADED;
     }
 
     getFileExtension(): string {

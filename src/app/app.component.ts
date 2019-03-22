@@ -113,22 +113,30 @@ export class AppComponent implements OnInit, OnDestroy {
     initS3() {
         this.fileEvents.pipe(takeUntil(this.$destroy)).subscribe(
             (fileEvent: FileEvent) => {
-                console.log(fileEvent.file.uploadPercentage);
+                switch (fileEvent.type) {
+                    case FileEventType.FILE_UPLOAD_START: {
+                        this.uploadingFile = fileEvent.file;
+                        break;
+                    }
+
+                    case FileEventType.FILE_UPLOAD_SUCCESS: {
+                        this.uploadingFile = null;
+                        this.filesUploaded++;
+                        break;
+                    }
+
+                    case FileEventType.FILE_UPLOAD_CANCELED: {
+                        this.uploadingFile = null;
+                        break;
+                    }
+                }
             }
         );
         this.multiFileEvents.pipe(takeUntil(this.$destroy)).subscribe(
             multiFileEvent => {
                 switch (multiFileEvent.type) {
                     case MultiFileEventType.UPLOAD_START: {
-                        break;
-                    }
-
-                    case MultiFileEventType.UPLOAD_END: {
-                        this.filesUploaded++;
-                        break;
-                    }
-
-                    case MultiFileEventType.UPLOAD_PROGRESS: {
+                        this.filesUploaded = 0;
                         break;
                     }
                 }
@@ -146,20 +154,18 @@ export class AppComponent implements OnInit, OnDestroy {
         }
     }
 
+    cancelUpload() {
+        this._s3FileService.cancelUpload();
+    }
+
+    cancelUploads() {
+        this._files = [];
+        this._s3FileService.cancelUpload();
+    }
+
     manageFiles(files: File[]) {
         this._files = files;
         this.totalFiles = files.length;
-
-        /*
-        if (this.fileValidators) {
-            this.fileValidators.forEach(validator => {
-                if (validator.validators.indexOf(FileValidators.SIZE_VALIDATOR) &&
-                    validator.maxSizeAllowed === null) {
-                    validator.maxSizeAllowed = this.maxSizeAllowed;
-                }
-            });
-        }
-        */
     }
 
     uploadFiles(files: File[], publicFile: boolean = false, uploadSubDir?: string) {
@@ -215,7 +221,7 @@ export class AppComponent implements OnInit, OnDestroy {
                 break;
             }
 
-            case FileEventType.FILE_UPLOAD_END: {
+            case FileEventType.FILE_UPLOAD_FAILED: {
                 if (this._managedFiles.every((file => {
                     return file.status === ManagedFileStatus.UPLOADED;
                 }))) {
