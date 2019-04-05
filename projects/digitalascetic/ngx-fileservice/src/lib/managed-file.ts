@@ -10,6 +10,8 @@ export enum ManagedFileStatus {
 
 export class ManagedFile {
 
+    private _id: number;
+
     private _name: string;
 
     private _originalName: string;
@@ -28,7 +30,8 @@ export class ManagedFile {
 
     private _status: ManagedFileStatus = null;
 
-    constructor(uri: string, name: string, mimeType?: string) {
+    constructor(uri: string, name: string, mimeType: string, id?: number) {
+        this._id = id;
         this._mimeType = mimeType;
         this._originalName = name;
         this._uri = uri;
@@ -79,6 +82,14 @@ export class ManagedFile {
         }
 
         return this._name;
+    }
+
+    get id(): number {
+        return this._id;
+    }
+
+    set id(value: number) {
+        this._id = value;
     }
 
     get name(): string {
