@@ -71,7 +71,7 @@ export class MultiFileEvent {
         let total = this._files.length * 100;
         let progress = 0;
         this._files.forEach((file: ManagedFile) => {
-            progress = progress + file.uploadPercentage;
+            progress = progress + file.uploadedPercentage;
         });
 
         return Math.floor(progress / total);

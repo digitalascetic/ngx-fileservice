@@ -16,6 +16,8 @@ export class ManagedFile {
 
     private _originalName: string;
 
+    private _checksum: string;
+
     private _uri: string;
 
     private _size: number;
@@ -26,7 +28,9 @@ export class ManagedFile {
 
     private _storageClass: string;
 
-    private _uploadPercentage: number = 0;
+    private _uploadedPercentage: number = 0;
+
+    private _uploadedBytes: number = 0;
 
     private _status: ManagedFileStatus = null;
 
@@ -46,6 +50,7 @@ export class ManagedFile {
         if (this._originalName) {
             ext = this._originalName.substr(this._originalName.lastIndexOf('.') + 1);
         }
+
         return ext;
     }
 
@@ -104,6 +109,14 @@ export class ManagedFile {
         this._name = value;
     }
 
+    get checksum(): string {
+        return this._checksum;
+    }
+
+    set checksum(value: string) {
+        this._checksum = value;
+    }
+
     get uri(): string {
         return this._uri;
     }
@@ -118,6 +131,10 @@ export class ManagedFile {
 
     set size(value: number) {
         this._size = value;
+    }
+
+    get formattedSize(): string {
+        return ManagedFile.bytesToSize(this.size);
     }
 
     get mimeType(): string {
@@ -152,12 +169,20 @@ export class ManagedFile {
         this._storageClass = value;
     }
 
-    get uploadPercentage(): number {
-        return this._uploadPercentage;
+    get uploadedPercentage(): number {
+        return this._uploadedPercentage;
     }
 
-    set uploadPercentage(value: number) {
-        this._uploadPercentage = value;
+    set uploadedPercentage(value: number) {
+        this._uploadedPercentage = value;
+    }
+
+    get uploadedBytes(): number {
+        return this._uploadedBytes;
+    }
+
+    set uploadedBytes(value: number) {
+        this._uploadedBytes = value;
     }
 
     get status() {
@@ -174,20 +199,22 @@ export class ManagedFile {
 
     getEncoding(): string {
         if (this.isUriEncoded()) {
-            let mimeEnd = this._uri.indexOf(';');
-            let contentStart = this._uri.indexOf(',');
+            const mimeEnd = this._uri.indexOf(';');
+            const contentStart = this._uri.indexOf(',');
+
             return this._uri.substr(mimeEnd + 1, contentStart - mimeEnd - 1);
         }
+
         return null;
     }
 
     getPath(): string {
-        let reURLInformation = new RegExp([
+        const reURLInformation = new RegExp([
             '^(https?:)//', // protocol
             '(([^:/?#]*)(?::([0-9]+))?)', // host (hostname and port)
             '(/{0,1}[^?#]*)'
         ].join(''));
-        let match = this._uri.match(reURLInformation);
+        const match = this._uri.match(reURLInformation);
 
         return match[5];
     }
@@ -198,12 +225,12 @@ export class ManagedFile {
             return null;
         }
 
-        let contentType = this._mimeType || '';
-        let sliceSize = 1024;
-        let byteCharacters = atob(this.getEncodedContent());
-        let bytesLength = byteCharacters.length;
-        let slicesCount = Math.ceil(bytesLength / sliceSize);
-        let byteArrays = new Array(slicesCount);
+        const contentType = this._mimeType || '';
+        const sliceSize = 1024;
+        const byteCharacters = atob(this.getEncodedContent());
+        const bytesLength = byteCharacters.length;
+        const slicesCount = Math.ceil(bytesLength / sliceSize);
+        const byteArrays = new Array(slicesCount);
 
         for (let sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
             let begin = sliceIndex * sliceSize;
@@ -221,21 +248,23 @@ export class ManagedFile {
     }
 
     getEncodedContent(): string {
-        let contentStart = this._uri.indexOf(',');
+        const contentStart = this._uri.indexOf(',');
         if (contentStart > 0) {
             return this._uri.substr(contentStart + 1);
         }
+
         return null;
     }
 
     static fromClientUpload(uploadedContent: string, name: string): ManagedFile {
-        let uri = uploadedContent;
-        let mimeStart = uploadedContent.indexOf(':');
-        let mimeEnd = uploadedContent.indexOf(';');
-        let mimeType = uploadedContent.substr(mimeStart + 1, mimeEnd - mimeStart - 1);
-        let managedFile = new ManagedFile(uri, name, mimeType);
+        const uri = uploadedContent;
+        const mimeStart = uploadedContent.indexOf(':');
+        const mimeEnd = uploadedContent.indexOf(';');
+        const mimeType = uploadedContent.substr(mimeStart + 1, mimeEnd - mimeStart - 1);
+        const managedFile = new ManagedFile(uri, name, mimeType);
         managedFile.status = ManagedFileStatus.LOADED;
-        managedFile.uploadPercentage = 0;
+        managedFile.uploadedPercentage = 0;
+        managedFile.uploadedBytes = 0;
 
         return managedFile;
     }

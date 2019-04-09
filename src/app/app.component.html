@@ -18,7 +18,7 @@
             <button type="button" (click)="cancelUploads()">Cancel all</button>
         </form>
         <div class="text-left">
-            Uploading: {{ uploadingFile ? uploadingFile.name : '-' }} <button type="button" (click)="cancelUpload()" *ngIf="uploadingFile">Cancel</button><br>
+            Uploading: {{ uploadingFile ? uploadingFile.name + ' (' + uploadingFile.uploadedPercentage + '% - ' + uploadingFile.uploadedBytes + ' of ' + uploadingFile.size + ' bytes)' : '-' }} <button type="button" (click)="cancelUpload()" *ngIf="uploadingFile">Cancel</button><br>
             Uploaded files: {{ filesUploaded }} of {{ totalFiles }}
         </div>
     </fieldset>
