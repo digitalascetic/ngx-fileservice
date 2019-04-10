@@ -98,6 +98,7 @@ export class S3FileService implements FileService {
                 file.uploadedPercentage = 100;
                 file.uploadedBytes = file.size;
                 file.uri = data.Location;
+                file.path = data.Key;
                 file.status = ManagedFileStatus.UPLOADED;
                 retSubject.next(new FileEvent(FileEventType.FILE_UPLOAD_SUCCESS, file));
                 retSubject.complete();

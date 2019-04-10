@@ -1,6 +1,6 @@
 {
   "name": "@digitalascetic/ngx-fileservice",
-  "version": "1.0.9-dev",
+  "version": "1.0.12-dev",
   "description": "Pluggable Angular File Service.",
   "license": "MIT",
   "keywords": [

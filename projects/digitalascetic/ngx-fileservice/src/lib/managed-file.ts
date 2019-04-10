@@ -1,11 +1,11 @@
 import { Md5 } from 'ts-md5/dist/md5';
 
 export enum ManagedFileStatus {
-    LOADED,
-    UPLOADING,
-    UPLOADED,
-    DELETING,
-    DELETED
+    LOADED = 'LOADED',
+    UPLOADING = 'UPLOADING',
+    UPLOADED = 'UPLOADED',
+    DELETING = 'DELETING',
+    DELETED = 'DELETED'
 }
 
 export class ManagedFile {
@@ -20,11 +20,15 @@ export class ManagedFile {
 
     private _uri: string;
 
+    private _path: string;
+
     private _size: number;
 
     private _mimeType: string;
 
     private _public: boolean;
+
+    private _temporary: boolean;
 
     private _storageClass: string;
 
@@ -40,6 +44,7 @@ export class ManagedFile {
         this._originalName = name;
         this._uri = uri;
         this._public = false;
+        this._temporary = false;
         this._storageClass = null;
         this._size = null;
         this.regenerateName();
@@ -54,16 +59,26 @@ export class ManagedFile {
         return ext;
     }
 
-    static bytesToSize(bytes: number): string {
+    static bytesToSize(bytes: number, precision: number = 2, separator: string = '.'): string {
         const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
 
         if (bytes === 0) {
             return '0 Byte';
         }
 
-        const i = Math.floor(Math.log(bytes) / Math.log(1024));
+        let unit = 0;
 
-        return Math.round(bytes / Math.pow(1024, i)) + ' ' + sizes[i];
+        while (bytes >= 1024) {
+            bytes /= 1024;
+            unit++;
+        }
+
+        // Remove decimal part when zero.
+        return bytes
+            .toFixed(precision)
+            .split('.')
+            .filter(part => part !== '0'.repeat(precision))
+            .join(separator) + ' ' + sizes[unit];
     }
 
     /**
@@ -125,6 +140,14 @@ export class ManagedFile {
         this._uri = value;
     }
 
+    get path(): string {
+        return this._path;
+    }
+
+    set path(value: string) {
+        this._path = value;
+    }
+
     get size(): number {
         return this._size;
     }
@@ -159,6 +182,14 @@ export class ManagedFile {
 
     set public(value: boolean) {
         this._public = value;
+    }
+
+    get temporary(): boolean {
+        return this._temporary;
+    }
+
+    set temporary(value: boolean) {
+        this._temporary = value;
     }
 
     get storageClass(): string {
