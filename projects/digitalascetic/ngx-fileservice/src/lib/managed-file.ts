@@ -14,6 +14,8 @@ export class ManagedFile {
 
     private _originalName: string;
 
+    private _path: string;
+
     private _uri: string;
 
     private _size: number;
@@ -28,14 +30,16 @@ export class ManagedFile {
 
     private _status: ManagedFileStatus = null;
 
-    constructor(uri: string, name: string, mimeType?: string) {
+    private _checksum: string;
+
+    constructor(name: string, uploadDir: string, mimeType?: string) {
         this._mimeType = mimeType;
-        this._originalName = name;
-        this._uri = uri;
+        this._originalName = name
         this._public = false;
         this._storageClass = null;
         this._size = null;
-        this.regenerateName();
+
+        this.generateNameAndPath(uploadDir);
     }
 
     getFileExtension(): string {
@@ -61,31 +65,34 @@ export class ManagedFile {
     /**
      *
      */
-    private regenerateName(charsNum: number = 16) {
-        if (this._uri) {
-            let ext: string = this.getFileExtension();
+    private generateNameAndPath(uploadDir: string, charsNum: number = 16) {
+        let ext: string = this.getFileExtension();
 
-            if (ext && !this._mimeType && this._uri) {
-                /**
-                 * TODO USE A MIME TYPE LIBRARY TO GET MIME TYPE (CAUTION WITH ANGULAR 6 COMPATIBILITY)
-                 * https://github.com/angular/angular-cli/issues/9827#issuecomment-369578814
-                 */
-                this._mimeType = '';
-            }
-            this._name = new Md5().appendStr(this._uri).appendStr(new Date().getMilliseconds().toString()).end().toString().substr(0, charsNum);
-            this._name = this._name + (ext ? '.' + ext : '');
-        } else {
-            this._name = new Md5().appendStr(new Date().getMilliseconds().toString()).end().toString().substr(0, charsNum);
+        if (ext && !this._mimeType) {
+            /**
+             * TODO USE A MIME TYPE LIBRARY TO GET MIME TYPE (CAUTION WITH ANGULAR 6 COMPATIBILITY)
+             * https://github.com/angular/angular-cli/issues/9827#issuecomment-369578814
+             */
+            this._mimeType = '';
         }
+        this._name = new Md5().appendStr(new Date().getMilliseconds().toString()).end().toString().substr(0, charsNum);
+        this._name = this._name + (ext ? '.' + ext : '');
+
+        this._path = uploadDir + '/' + this._name;
 
         return this._name;
     }
 
-    get name(): string {
-        if (!this._name) {
-            this.regenerateName();
-        }
+    /**
+     *
+     */
+    private generateChecksum() {
+        this._checksum = new Md5().appendStr(this._uri).end().toString();
 
+        return this._checksum;
+    }
+
+    get name(): string {
         return this._name;
     }
 
@@ -99,6 +106,16 @@ export class ManagedFile {
 
     set uri(value: string) {
         this._uri = value;
+
+        this.generateChecksum();
+    }
+
+    get path(): string {
+        return this._path;
+    }
+
+    set path(value: string) {
+        this._path = value;
     }
 
     get size(): number {
@@ -155,6 +172,14 @@ export class ManagedFile {
 
     set status(value) {
         this._status = value;
+    }
+
+    get checksum(): string {
+        if (!this._checksum) {
+            this.generateChecksum();
+        }
+
+        return this._checksum;
     }
 
     isUriEncoded(): boolean {
@@ -217,12 +242,13 @@ export class ManagedFile {
         return null;
     }
 
-    static fromClientUpload(uploadedContent: string, name: string): ManagedFile {
+    static fromClientUpload(uploadedContent: string, name: string, uploadDir: string): ManagedFile {
         let uri = uploadedContent;
         let mimeStart = uploadedContent.indexOf(':');
         let mimeEnd = uploadedContent.indexOf(';');
         let mimeType = uploadedContent.substr(mimeStart + 1, mimeEnd - mimeStart - 1);
-        let managedFile = new ManagedFile(uri, name, mimeType);
+        let managedFile = new ManagedFile(name, uploadDir, mimeType);
+        managedFile.uri = uri;
         managedFile.status = ManagedFileStatus.LOADED;
         managedFile.uploadPercentage = 0;
 

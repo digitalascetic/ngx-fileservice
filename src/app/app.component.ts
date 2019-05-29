@@ -120,6 +120,7 @@ export class AppComponent implements OnInit, OnDestroy {
                     }
 
                     case FileEventType.FILE_UPLOAD_SUCCESS: {
+                    console.log(this.uploadingFile);
                         this.uploadingFile = null;
                         this.filesUploaded++;
                         break;
@@ -145,7 +146,7 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     uploadFileS3() {
-        this.uploadFiles(this._files, this.publicFiles, environment.s3_base_dir);
+        this.uploadFiles(this._files, this.publicFiles, 'test-dir');
     }
 
     updateFiles(event: any) {
@@ -168,7 +169,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.totalFiles = files.length;
     }
 
-    uploadFiles(files: File[], publicFile: boolean = false, uploadSubDir?: string) {
+    uploadFiles(files: File[], publicFile: boolean = false, uploadDir: string) {
         const totalFiles: number = files.length;
 
         const loaderObservable: Subject<ManagedFile> = new Subject<ManagedFile>();
@@ -177,7 +178,7 @@ export class AppComponent implements OnInit, OnDestroy {
                 take(totalFiles)
             )
             .subscribe((file: ManagedFile) => {
-                this._uploadFile(file, uploadSubDir);
+                this._uploadFile(file, environment.s3_base_dir + '/' + uploadDir);
             }, () => {
                 this.multiFileEvents.next(new MultiFileEvent(MultiFileEventType.LOAD, this._managedFiles));
             });
@@ -188,9 +189,8 @@ export class AppComponent implements OnInit, OnDestroy {
             const file = files[i];
 
             reader.addEventListener('load', (event: any) => {
-                const managedFile = ManagedFile.fromClientUpload(event.target.result, file.name);
+                const managedFile = ManagedFile.fromClientUpload(event.target.result, file.name, uploadDir);
                 managedFile.size = file.size;
-                managedFile.name = file.name;
                 managedFile.public = publicFile;
 
                 // TODO maybe set also lastUpdatedDate
@@ -233,10 +233,10 @@ export class AppComponent implements OnInit, OnDestroy {
         }
     }
 
-    private _uploadFile(file: ManagedFile, uploadSubDir: string = ''): void {
+    private _uploadFile(file: ManagedFile, uploadDir: string): void {
         this.fileEvents.next(new FileEvent(FileEventType.FILE_LOAD, file));
         this._managedFiles.push(file);
-        this._s3FileService.uploadFile(file, uploadSubDir + '/' + file.name, [])
+        this._s3FileService.uploadFile(file, uploadDir + '/' + file.name, [])
             .pipe(
                 takeUntil(this.$destroy)
             )
