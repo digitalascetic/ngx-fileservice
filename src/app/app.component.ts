@@ -9,6 +9,7 @@ import { S3FileService } from '../../projects/digitalascetic/ngx-fileservice/src
 import { FileEvent, FileEventType } from '../../projects/digitalascetic/ngx-fileservice/src/lib/file-event';
 import { ManagedFile, ManagedFileStatus } from '../../projects/digitalascetic/ngx-fileservice/src/lib/managed-file';
 import { MultiFileEvent, MultiFileEventType } from '../../projects/digitalascetic/ngx-fileservice/src/lib/multi-file-event';
+import { Md5 } from 'ts-md5';
 
 @Component({
     selector: 'app-root',
@@ -23,6 +24,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     filesUploaded: number = 0;
     uploadingFile: ManagedFile = null;
+    lastUploadedFile: ManagedFile = null;
     totalFiles: number = 0;
     publicFiles: boolean = false;
 
@@ -120,7 +122,7 @@ export class AppComponent implements OnInit, OnDestroy {
                     }
 
                     case FileEventType.FILE_UPLOAD_SUCCESS: {
-                    console.log(this.uploadingFile);
+                        this.lastUploadedFile = fileEvent.file;
                         this.uploadingFile = null;
                         this.filesUploaded++;
                         break;

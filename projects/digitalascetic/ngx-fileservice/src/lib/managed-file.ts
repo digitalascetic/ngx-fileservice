@@ -1,22 +1,24 @@
 import { Md5 } from 'ts-md5/dist/md5';
 
 export enum ManagedFileStatus {
-    LOADED,
-    UPLOADING,
-    UPLOADED,
-    DELETING,
-    DELETED
+    LOADED = 'LOADED',
+    UPLOADING = 'UPLOADING',
+    UPLOADED = 'UPLOADED',
+    DELETING = 'DELETING',
+    DELETED = 'DELETED'
 }
 
 export class ManagedFile {
+
+    private _id: number;
 
     private _name: string;
 
     private _originalName: string;
 
-    private _path: string;
-
     private _uri: string;
+
+    private _path: string;
 
     private _size: number;
 
@@ -24,18 +26,24 @@ export class ManagedFile {
 
     private _public: boolean;
 
+    private _temporary: boolean;
+
     private _storageClass: string;
 
-    private _uploadPercentage: number = 0;
+    private _uploadedPercentage: number = 0;
+
+    private _uploadedBytes: number = 0;
 
     private _status: ManagedFileStatus = null;
 
     private _checksum: string;
 
-    constructor(name: string, uploadDir: string, mimeType?: string) {
+    constructor(name: string, uploadDir: string, mimeType: string, id?: number) {
+        this._id = id;
         this._mimeType = mimeType;
         this._originalName = name
         this._public = false;
+        this._temporary = false;
         this._storageClass = null;
         this._size = null;
 
@@ -47,19 +55,30 @@ export class ManagedFile {
         if (this._originalName) {
             ext = this._originalName.substr(this._originalName.lastIndexOf('.') + 1);
         }
+
         return ext;
     }
 
-    static bytesToSize(bytes: number): string {
+    static bytesToSize(bytes: number, precision: number = 2, separator: string = '.'): string {
         const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
 
         if (bytes === 0) {
             return '0 Byte';
         }
 
-        const i = Math.floor(Math.log(bytes) / Math.log(1024));
+        let unit = 0;
 
-        return Math.round(bytes / Math.pow(1024, i)) + ' ' + sizes[i];
+        while (bytes >= 1024) {
+            bytes /= 1024;
+            unit++;
+        }
+
+        // Remove decimal part when zero.
+        return bytes
+            .toFixed(precision)
+            .split('.')
+            .filter(part => part !== '0'.repeat(precision))
+            .join(separator) + ' ' + sizes[unit];
     }
 
     /**
@@ -90,6 +109,14 @@ export class ManagedFile {
         this._checksum = new Md5().appendStr(this._uri).end().toString();
 
         return this._checksum;
+    }
+
+    get id(): number {
+        return this._id;
+    }
+
+    set id(value: number) {
+        this._id = value;
     }
 
     get name(): string {
@@ -126,6 +153,10 @@ export class ManagedFile {
         this._size = value;
     }
 
+    get formattedSize(): string {
+        return ManagedFile.bytesToSize(this.size);
+    }
+
     get mimeType(): string {
         return this._mimeType;
     }
@@ -150,6 +181,14 @@ export class ManagedFile {
         this._public = value;
     }
 
+    get temporary(): boolean {
+        return this._temporary;
+    }
+
+    set temporary(value: boolean) {
+        this._temporary = value;
+    }
+
     get storageClass(): string {
         return this._storageClass;
     }
@@ -158,12 +197,20 @@ export class ManagedFile {
         this._storageClass = value;
     }
 
-    get uploadPercentage(): number {
-        return this._uploadPercentage;
+    get uploadedPercentage(): number {
+        return this._uploadedPercentage;
     }
 
-    set uploadPercentage(value: number) {
-        this._uploadPercentage = value;
+    set uploadedPercentage(value: number) {
+        this._uploadedPercentage = value;
+    }
+
+    get uploadedBytes(): number {
+        return this._uploadedBytes;
+    }
+
+    set uploadedBytes(value: number) {
+        this._uploadedBytes = value;
     }
 
     get status() {
@@ -188,20 +235,22 @@ export class ManagedFile {
 
     getEncoding(): string {
         if (this.isUriEncoded()) {
-            let mimeEnd = this._uri.indexOf(';');
-            let contentStart = this._uri.indexOf(',');
+            const mimeEnd = this._uri.indexOf(';');
+            const contentStart = this._uri.indexOf(',');
+
             return this._uri.substr(mimeEnd + 1, contentStart - mimeEnd - 1);
         }
+
         return null;
     }
 
     getPath(): string {
-        let reURLInformation = new RegExp([
+        const reURLInformation = new RegExp([
             '^(https?:)//', // protocol
             '(([^:/?#]*)(?::([0-9]+))?)', // host (hostname and port)
             '(/{0,1}[^?#]*)'
         ].join(''));
-        let match = this._uri.match(reURLInformation);
+        const match = this._uri.match(reURLInformation);
 
         return match[5];
     }
@@ -212,12 +261,12 @@ export class ManagedFile {
             return null;
         }
 
-        let contentType = this._mimeType || '';
-        let sliceSize = 1024;
-        let byteCharacters = atob(this.getEncodedContent());
-        let bytesLength = byteCharacters.length;
-        let slicesCount = Math.ceil(bytesLength / sliceSize);
-        let byteArrays = new Array(slicesCount);
+        const contentType = this._mimeType || '';
+        const sliceSize = 1024;
+        const byteCharacters = atob(this.getEncodedContent());
+        const bytesLength = byteCharacters.length;
+        const slicesCount = Math.ceil(bytesLength / sliceSize);
+        const byteArrays = new Array(slicesCount);
 
         for (let sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
             let begin = sliceIndex * sliceSize;
@@ -235,10 +284,11 @@ export class ManagedFile {
     }
 
     getEncodedContent(): string {
-        let contentStart = this._uri.indexOf(',');
+        const contentStart = this._uri.indexOf(',');
         if (contentStart > 0) {
             return this._uri.substr(contentStart + 1);
         }
+
         return null;
     }
 
@@ -250,7 +300,8 @@ export class ManagedFile {
         let managedFile = new ManagedFile(name, uploadDir, mimeType);
         managedFile.uri = uri;
         managedFile.status = ManagedFileStatus.LOADED;
-        managedFile.uploadPercentage = 0;
+        managedFile.uploadedPercentage = 0;
+        managedFile.uploadedBytes = 0;
 
         return managedFile;
     }

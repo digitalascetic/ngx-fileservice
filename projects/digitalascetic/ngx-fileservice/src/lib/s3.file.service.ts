@@ -80,7 +80,8 @@ export class S3FileService implements FileService {
                 retSubject.next(new FileEvent(FileEventType.FILE_UPLOAD_START, file));
                 start = false;
             }
-            file.uploadPercentage = Math.floor(evt.loaded * 100 / evt.total);
+            file.uploadedPercentage = Math.floor(evt.loaded * 100 / evt.total);
+            file.uploadedBytes = evt.loaded;
             retSubject.next(new FileEvent(FileEventType.FILE_UPLOAD_PROGRESS, file));
         }).send((err, data) => {
             if (err) {
@@ -94,7 +95,8 @@ export class S3FileService implements FileService {
                     retSubject.error(err);
                 }
             } else {
-                file.uploadPercentage = 100;
+                file.uploadedPercentage = 100;
+                file.uploadedBytes = file.size;
                 file.uri = data.Location;
                 file.status = ManagedFileStatus.UPLOADED;
                 retSubject.next(new FileEvent(FileEventType.FILE_UPLOAD_SUCCESS, file));
