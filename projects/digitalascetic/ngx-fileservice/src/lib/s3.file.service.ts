@@ -16,7 +16,8 @@ export class S3FileService implements FileService {
         private _bucketName: string,
         private _accessKeyId: string,
         private _secretAccessKey: string,
-        private _region: string
+        private _region: string,
+        private _awsConfig: object = {}
     ) {
     }
 
@@ -113,22 +114,20 @@ export class S3FileService implements FileService {
     }
 
     private get bucket() {
-        const config = new AWS.Config({
+        const configObject = Object.assign({
             credentials: new AWS.Credentials({
                 accessKeyId: this._accessKeyId,
                 secretAccessKey: this._secretAccessKey
             }),
             region: this._region,
-            maxRetries: 3,
             sslEnabled: true,
-            signatureVersion: 'v4'
-        });
+            signatureVersion: 'v4',
+            apiVersion: 'latest',
+        }, this._awsConfig);
+
+        const config = new AWS.Config(configObject);
 
         AWS.config.update(config);
-
-        AWS.config.apiVersions = {
-            s3: '2006-03-01'
-        };
 
         return new AWS.S3();
     }

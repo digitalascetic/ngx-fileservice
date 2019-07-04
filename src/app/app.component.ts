@@ -38,7 +38,11 @@ export class AppComponent implements OnInit, OnDestroy {
     constructor(
         private _fb: FormBuilder
     ) {
-        this._s3FileService = new S3FileService(environment.s3_bucket_name, environment.s3_access_key_id, environment.s3_secret_access_key, environment.s3_region);
+        this._s3FileService = new S3FileService(environment.s3_bucket_name, environment.s3_access_key_id, environment.s3_secret_access_key, environment.s3_region, {
+            httpOptions: {
+                timeout: 0, // Milliseconds
+            },
+        });
         this.form = this._fb.group({
             'file': []
         });
