@@ -198,6 +198,7 @@ export class AppComponent implements OnInit, OnDestroy {
                 const managedFile = ManagedFile.fromClientUpload(event.target.result, file.name, uploadDir);
                 managedFile.size = file.size;
                 managedFile.public = publicFile;
+                console.log(managedFile);
 
                 // TODO maybe set also lastUpdatedDate
                 loaderObservable.next(managedFile);

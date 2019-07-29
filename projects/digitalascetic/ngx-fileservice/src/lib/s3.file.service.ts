@@ -29,7 +29,7 @@ export class S3FileService implements FileService {
 
         const params = {
             Bucket: this._bucketName,
-            Key: file.getPath().substr(1)
+            Key: file.uri
         };
         // Override default values
         Object.assign(params, options);
