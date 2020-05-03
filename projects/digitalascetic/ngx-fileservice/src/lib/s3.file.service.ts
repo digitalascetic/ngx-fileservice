@@ -51,6 +51,14 @@ export class S3FileService implements FileService {
     uploadFile(file: ManagedFile, path: string, options: any): Observable<FileEvent> {
         const retSubject = new Subject<FileEvent>();
 
+        // Allows to pass s3 bucket multipart upload options
+        var uploadOptions = [];
+
+        if (options && options.options) {
+           uploadOptions = options.options;
+           options.options
+        }
+
         file.status = ManagedFileStatus.UPLOADING;
 
         this._currentFile = file;
@@ -75,7 +83,7 @@ export class S3FileService implements FileService {
 
         let start: boolean = true;
 
-        this._currentUpload = this.bucket.upload(params);
+        this._currentUpload = this.bucket.upload(params, uploadOptions);
         this._currentUpload.on('httpUploadProgress', evt => {
             if (start) {
                 retSubject.next(new FileEvent(FileEventType.FILE_UPLOAD_START, file));
