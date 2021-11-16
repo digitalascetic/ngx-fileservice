@@ -23,7 +23,7 @@
         "@angular/forms": "^7.2.15",
         "@angular/platform-browser": "^7.2.15",
         "@angular/platform-browser-dynamic": "^7.2.15",
-        "aws-sdk": "^2.501.0",
+        "aws-sdk": "^2.814.0",
         "core-js": "^2.6.9",
         "dropbox": "^4.0.28",
         "rxjs": "~6.3.3",
