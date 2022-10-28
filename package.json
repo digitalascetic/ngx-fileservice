@@ -1,6 +1,6 @@
 {
     "name": "fileservice-ngx-app",
-    "version": "1.2.0",
+    "version": "9.0.0",
     "license": "MIT",
     "scripts": {
         "ng": "ng",
