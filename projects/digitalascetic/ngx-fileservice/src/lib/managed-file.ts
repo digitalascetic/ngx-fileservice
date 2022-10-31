@@ -1,4 +1,4 @@
-import { Md5 } from 'ts-md5/dist/md5';
+import {Md5} from 'ts-md5';
 
 export enum ManagedFileStatus {
     LOADED = 'LOADED',
@@ -217,7 +217,7 @@ export class ManagedFile {
             byteArrays[sliceIndex] = new Uint8Array(bytes);
         }
 
-        return new Blob(byteArrays, { type: contentType });
+        return new Blob(byteArrays, {type: contentType});
     }
 
     getEncodedContent(): string {

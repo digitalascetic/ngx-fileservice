@@ -1,6 +1,6 @@
-import { Md5 } from 'ts-md5/dist/md5';
+import {Md5} from 'ts-md5';
 
-import { ManagedFile, ManagedFileStatus } from './managed-file';
+import {ManagedFile, ManagedFileStatus} from './managed-file';
 
 export enum MultiFileEventType {
     LOAD,

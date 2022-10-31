@@ -1,4 +1,4 @@
-import { ManagedFile } from './managed-file';
+import {ManagedFile} from './managed-file';
 
 export enum FileEventType {
     FILE_LOAD,

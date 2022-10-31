@@ -1,11 +1,13 @@
-import { Observable, Subject } from 'rxjs';
-import * as AWS from 'aws-sdk';
-import { ManagedUpload } from 'aws-sdk/clients/s3';
+import {Observable, Subject} from 'rxjs';
+import AWS from 'aws-sdk';
+import {ManagedUpload} from 'aws-sdk/clients/s3';
 
-import { FileService } from './file.service';
-import { ManagedFile, ManagedFileStatus } from './managed-file';
-import { FileEvent, FileEventType } from './file-event';
+import {FileService} from './file.service';
+import {ManagedFile, ManagedFileStatus} from './managed-file';
+import {FileEvent, FileEventType} from './file-event';
+import {Injectable} from '@angular/core';
 
+@Injectable()
 export class S3FileService implements FileService {
 
     private _currentUpload: ManagedUpload = null;
@@ -34,7 +36,7 @@ export class S3FileService implements FileService {
         // Override default values
         Object.assign(params, options);
 
-        this.bucket.deleteObject(params, function(err, data) {
+        this.bucket.deleteObject(params, function (err, data) {
             retSubject.next(new FileEvent(FileEventType.FILE_DELETE_END, file));
             if (err) {
                 file.status = ManagedFileStatus.UPLOADED;
@@ -52,11 +54,10 @@ export class S3FileService implements FileService {
         const retSubject = new Subject<FileEvent>();
 
         // Allows to pass s3 bucket multipart upload options
-        var uploadOptions = [];
+        let uploadOptions = [];
 
         if (options && options.options) {
-           uploadOptions = options.options;
-           options.options
+            uploadOptions = options.options;
         }
 
         file.status = ManagedFileStatus.UPLOADING;
@@ -76,7 +77,7 @@ export class S3FileService implements FileService {
 
         if (file.originalName) {
             //We need to encode UFT8 to avoid error with special chars
-            params.Metadata = { originalName: encodeURIComponent(file.originalName) };
+            params.Metadata = {originalName: encodeURIComponent(file.originalName)};
         }
         // Override default values
         Object.assign(params, options);
@@ -98,8 +99,7 @@ export class S3FileService implements FileService {
                 if (this._cancelUpload) {
                     retSubject.next(new FileEvent(FileEventType.FILE_UPLOAD_CANCELED, this._currentFile));
                     this._cancelUpload = false;
-                }
-                else {
+                } else {
                     retSubject.next(new FileEvent(FileEventType.FILE_UPLOAD_FAILED, file));
                     retSubject.error(err);
                 }
