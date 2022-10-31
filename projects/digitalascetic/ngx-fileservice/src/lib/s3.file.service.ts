@@ -5,9 +5,7 @@ import {ManagedUpload} from 'aws-sdk/clients/s3';
 import {FileService} from './file.service';
 import {ManagedFile, ManagedFileStatus} from './managed-file';
 import {FileEvent, FileEventType} from './file-event';
-import {Injectable} from '@angular/core';
 
-@Injectable()
 export class S3FileService implements FileService {
 
     private _currentUpload: ManagedUpload = null;
