@@ -1,7 +1,6 @@
 import {Observable, Subject} from 'rxjs';
 import AWS from 'aws-sdk';
 import {ManagedUpload} from 'aws-sdk/clients/s3';
-
 import {FileService} from './file.service';
 import {ManagedFile, ManagedFileStatus} from './managed-file';
 import {FileEvent, FileEventType} from './file-event';
@@ -52,7 +51,7 @@ export class S3FileService implements FileService {
         const retSubject = new Subject<FileEvent>();
 
         // Allows to pass s3 bucket multipart upload options
-        let uploadOptions = [];
+        let uploadOptions: ManagedUpload.ManagedUploadOptions = {};
 
         if (options && options.options) {
             uploadOptions = options.options;

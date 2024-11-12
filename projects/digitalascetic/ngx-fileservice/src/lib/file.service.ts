@@ -1,5 +1,4 @@
 import {Observable} from 'rxjs';
-
 import {ManagedFile} from './managed-file';
 import {FileEvent} from './file-event';
 

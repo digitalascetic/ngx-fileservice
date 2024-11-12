@@ -4,13 +4,13 @@
         "directive-selector": [
             true,
             "attribute",
-            "flup",
+            "ascfil",
             "camelCase"
         ],
         "component-selector": [
             true,
             "element",
-            "flup",
+            "ascfil",
             "kebab-case"
         ]
     }
