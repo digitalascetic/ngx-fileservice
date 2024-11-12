@@ -10,6 +10,11 @@ export enum ManagedFileStatus {
 
 export class ManagedFile {
 
+    public static STORAGE_STANDARD = 'STANDARD';
+    public static STORAGE_REDUCED_REDUNDANCY = 'REDUCED_REDUNDANCY';
+    public static STORAGE_STANDARD_IA = 'STANDARD_IA';
+    public static GLACIER = 'GLACIER';
+
     private _id: number;
 
     private _mimeType: string;

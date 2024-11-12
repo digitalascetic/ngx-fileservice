@@ -40,3 +40,5 @@ src/environments/environment.ts
 Thumbs.db
 
 ngx-fileservice.iml
+
+.angular

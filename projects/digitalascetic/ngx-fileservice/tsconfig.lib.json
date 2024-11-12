@@ -6,10 +6,7 @@
         "declaration": true,
         "declarationMap": true,
         "inlineSources": true,
-        "types": [],
-        "paths": {
-            "aws-sdk": ["node_modules/aws-sdk/dist/aws-sdk.js"]
-        }
+        "types": []
     },
     "exclude": [
         "**/*.spec.ts"
