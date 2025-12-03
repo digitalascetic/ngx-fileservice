@@ -10,10 +10,7 @@
             "prefix": "ascfil",
             "architect": {
                 "build": {
-                    "builder": "@angular-devkit/build-angular:ng-packagr",
-                    "options": {
-                        "project": "projects/digitalascetic/ngx-fileservice/ng-package.json"
-                    },
+                    "builder": "@angular/build:ng-packagr",
                     "configurations": {
                         "production": {
                             "tsConfig": "projects/digitalascetic/ngx-fileservice/tsconfig.lib.prod.json"
@@ -21,27 +18,16 @@
                         "development": {
                             "tsConfig": "projects/digitalascetic/ngx-fileservice/tsconfig.lib.json"
                         }
-                    }
+                    },
+                    "defaultConfiguration": "production"
                 },
                 "test": {
-                    "builder": "@angular-devkit/build-angular:karma",
+                    "builder": "@angular/build:unit-test",
                     "options": {
                         "tsConfig": "projects/digitalascetic/ngx-fileservice/tsconfig.spec.json",
                         "polyfills": [
                             "zone.js",
                             "zone.js/testing"
-                        ]
-                    }
-                },
-                "lint": {
-                    "builder": "@angular-devkit/build-angular:tslint",
-                    "options": {
-                        "tsConfig": [
-                            "projects/digitalascetic/ngx-fileservice/tsconfig.lib.json",
-                            "projects/digitalascetic/ngx-fileservice/tsconfig.spec.json"
-                        ],
-                        "exclude": [
-                            "**/node_modules/**"
                         ]
                     }
                 }
